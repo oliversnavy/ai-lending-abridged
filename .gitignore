@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+*.egg-info/
+
+# Data (downloaded separately -- see data_pipeline/README.md)
+data/*.csv
+data/*.csv.gz
+data/processed/*.parquet
+
+# Harness output not meant to be committed wholesale -- the smoke-test's own small
+# output under results/skills, results/traces, results/episode_indexes IS tracked
+# (committed deliberately as the repo's real worked example), but loop_state is pure
+# resumability scratch, never a deliverable.
+results/loop_state/*.jsonl
+
+# Local env
+.env
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS
+.DS_Store

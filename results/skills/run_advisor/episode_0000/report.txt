@@ -1,0 +1,4 @@
+cox_c_final=0.6844970962548441
+c_bin=0.6639658539140791
+winner=cox
+final_saved_c_stat=0.6844970962548441

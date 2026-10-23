@@ -1,0 +1,114 @@
+[
+  {
+    "type": "cox",
+    "max_depth": 3,
+    "eta": 0.01,
+    "best_iter": 599,
+    "c_index": 0.668962047569242
+  },
+  {
+    "type": "cox",
+    "max_depth": 3,
+    "eta": 0.03,
+    "best_iter": 599,
+    "c_index": 0.6794492338438154
+  },
+  {
+    "type": "cox",
+    "max_depth": 3,
+    "eta": 0.05,
+    "best_iter": 599,
+    "c_index": 0.6817269680647366
+  },
+  {
+    "type": "cox",
+    "max_depth": 3,
+    "eta": 0.1,
+    "best_iter": 599,
+    "c_index": 0.6823737126467323
+  },
+  {
+    "type": "cox",
+    "max_depth": 4,
+    "eta": 0.01,
+    "best_iter": 599,
+    "c_index": 0.6740349403191198
+  },
+  {
+    "type": "cox",
+    "max_depth": 4,
+    "eta": 0.03,
+    "best_iter": 599,
+    "c_index": 0.6818125026451601
+  },
+  {
+    "type": "cox",
+    "max_depth": 4,
+    "eta": 0.05,
+    "best_iter": 599,
+    "c_index": 0.6826939089415822
+  },
+  {
+    "type": "cox",
+    "max_depth": 4,
+    "eta": 0.1,
+    "best_iter": 599,
+    "c_index": 0.6801069934879559
+  },
+  {
+    "type": "cox",
+    "max_depth": 5,
+    "eta": 0.01,
+    "best_iter": 599,
+    "c_index": 0.6770216973215727
+  },
+  {
+    "type": "cox",
+    "max_depth": 5,
+    "eta": 0.03,
+    "best_iter": 599,
+    "c_index": 0.6827306495696143
+  },
+  {
+    "type": "cox",
+    "max_depth": 5,
+    "eta": 0.05,
+    "best_iter": 599,
+    "c_index": 0.6823106308592523
+  },
+  {
+    "type": "cox",
+    "max_depth": 5,
+    "eta": 0.1,
+    "best_iter": 599,
+    "c_index": 0.6757597348884375
+  },
+  {
+    "type": "cox",
+    "max_depth": 6,
+    "eta": 0.01,
+    "best_iter": 599,
+    "c_index": 0.6791064231431386
+  },
+  {
+    "type": "cox",
+    "max_depth": 6,
+    "eta": 0.03,
+    "best_iter": 599,
+    "c_index": 0.682582289379349
+  },
+  {
+    "type": "cox",
+    "max_depth": 6,
+    "eta": 0.05,
+    "best_iter": 599,
+    "c_index": 0.6809581132750842
+  },
+  {
+    "type": "cox",
+    "max_depth": 6,
+    "eta": 0.1,
+    "best_iter": 599,
+    "c_index": 0.6724731116745606
+  }
+]

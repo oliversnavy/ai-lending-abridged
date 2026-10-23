@@ -1,0 +1,33 @@
+# Base configuration — shared defaults across all run configs (agent/app/models/episode.py)
+
+loop:
+  plateau_window: 2             # consecutive iterations with no improvement to stop
+  plateau_threshold: 0.01       # min c-stat improvement to count as progress (1% relative)
+  max_iterations: 3             # small, demo-scale cap, confirmed reasonable against a
+                                  # real smoke test (baseline/advisor single episodes ran
+                                  # ~215k-250k tokens each; a 3-iteration ltm_full loop,
+                                  # plus post-mortem/critic calls, is a sane multiple of
+                                  # that, not a multi-day budget -- recalibrate upward
+                                  # only if a real need for more iterations shows up
+
+models:
+  # Default backend -- see agent/app/clients/llm.py::get_primary_client. Needs
+  # ANTHROPIC_API_KEY set in the environment.
+  anthropic_model: "claude-sonnet-5"
+  anthropic_max_tokens: 8192
+  # Second, open-weight-model backend path (RunConfig.backend="baseten"). Needs
+  # BASETEN_API_KEY set in the environment.
+  baseten_url: "https://inference.baseten.co/v1"
+  baseten_model: "zai-org/GLM-5.3"
+  baseten_max_tokens: 16384
+  # Post-mortem (end-of-episode critic) gets its own budget, separate from the main
+  # agent's per-turn cap -- a review-and-synthesize task benefits from more headroom
+  # than a single build/train turn needs.
+  post_mortem_max_tokens: 24576
+
+data:
+  train_end_year: 2014
+  val_start_year: 2015
+  val_end_year: 2016
+  holdout_start_year: 2017
+  processed_dir: "data/processed"

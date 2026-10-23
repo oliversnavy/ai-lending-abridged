@@ -1,0 +1,122 @@
+[
+  {
+    "label": "baseline_logistic",
+    "objective": "binary:logistic",
+    "params": {
+      "max_depth": 5,
+      "eta": 0.1,
+      "subsample": 0.8,
+      "n_estimators": 200
+    },
+    "c_index": 0.6678836477010588,
+    "time": 6.755861520767212
+  },
+  {
+    "label": "cox_base",
+    "objective": "survival:cox",
+    "params": {
+      "max_depth": 5,
+      "eta": 0.1,
+      "subsample": 0.8,
+      "n_estimators": 200
+    },
+    "c_index": 0.6792056132176111,
+    "time": 7.365998268127441
+  },
+  {
+    "label": "cox_grid_0",
+    "objective": "survival:cox",
+    "params": {
+      "max_depth": 3,
+      "eta": 0.1,
+      "subsample": 0.8,
+      "n_estimators": 300
+    },
+    "c_index": 0.6806720824315732,
+    "time": 8.371051549911499
+  },
+  {
+    "label": "cox_grid_1",
+    "objective": "survival:cox",
+    "params": {
+      "max_depth": 4,
+      "eta": 0.05,
+      "subsample": 0.8,
+      "n_estimators": 400
+    },
+    "c_index": 0.6817181574470264,
+    "time": 13.038939476013184
+  },
+  {
+    "label": "cox_grid_2",
+    "objective": "survival:cox",
+    "params": {
+      "max_depth": 6,
+      "eta": 0.1,
+      "subsample": 0.7,
+      "n_estimators": 200
+    },
+    "c_index": 0.6766354490967992,
+    "time": 8.839726686477661
+  },
+  {
+    "label": "cox_grid_3",
+    "objective": "survival:cox",
+    "params": {
+      "max_depth": 5,
+      "eta": 0.1,
+      "subsample": 1.0,
+      "n_estimators": 250
+    },
+    "c_index": 0.6800495960813195,
+    "time": 8.560512781143188
+  },
+  {
+    "label": "logistic_grid_0",
+    "objective": "binary:logistic",
+    "params": {
+      "max_depth": 3,
+      "eta": 0.1,
+      "subsample": 0.8,
+      "n_estimators": 300
+    },
+    "c_index": 0.668216121859898,
+    "time": 6.405166864395142
+  },
+  {
+    "label": "logistic_grid_1",
+    "objective": "binary:logistic",
+    "params": {
+      "max_depth": 4,
+      "eta": 0.05,
+      "subsample": 0.8,
+      "n_estimators": 400
+    },
+    "c_index": 0.6683245804329354,
+    "time": 9.631864547729492
+  },
+  {
+    "label": "logistic_grid_2",
+    "objective": "binary:logistic",
+    "params": {
+      "max_depth": 6,
+      "eta": 0.1,
+      "subsample": 0.7,
+      "n_estimators": 200
+    },
+    "c_index": 0.6670048972975435,
+    "time": 7.624752998352051
+  },
+  {
+    "label": "logistic_grid_3",
+    "objective": "binary:logistic",
+    "params": {
+      "max_depth": 5,
+      "eta": 0.1,
+      "subsample": 1.0,
+      "n_estimators": 250
+    },
+    "c_index": 0.6678914460480369,
+    "time": 7.378277063369751
+  }
+]

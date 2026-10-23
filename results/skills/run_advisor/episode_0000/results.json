@@ -1,0 +1,7 @@
+{
+  "approach": "XGBoost survival:cox model trained on train.parquet using observed_time/event (censored loans get negated label per XGBoost cox convention). Feature engineering: emp_length parsing with missing indicator, fico midpoint, dti/revol_util winsorizing, earliest_cr_line->years of history, categorical label encoding, missing indicators + -999 fill. Monotonic constraints applied on fico_midpoint (negative), dti/revol_util (positive).",
+  "hypothesis": "Survival/Cox framing uses the full dataset (including censored/active loans) correctly rather than discarding them, which should produce a better and less biased risk ranking than a binary classifier restricted to resolved loans only.",
+  "local_c_stat_cox": 0.6845,
+  "local_c_stat_baseline_classifier": 0.6640,
+  "chosen_model": "xgboost_survival_cox"
+}
