@@ -118,6 +118,15 @@
   svg .pill { fill: var(--surface-2); stroke: var(--border); }
   svg .pill-text { font-size: 10.5px; }
 
+  .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 26px; }
+  .stat-tile { border: 1px solid var(--border); border-radius: 10px; padding: 16px; background: var(--surface-1); }
+  .stat-label { font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-muted); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .stat-value { font-size: clamp(18px, 2.4vw, 24px); font-weight: 700; color: var(--accent-ink); margin: 6px 0 4px; letter-spacing: -0.01em; }
+  .stat-sub { font-size: 12px; color: var(--text-secondary); }
+  @media (max-width: 640px) {
+    .stat-grid { grid-template-columns: 1fr; }
+  }
+
   .stack-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
   .chip {
     font-size: 13px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--border);
@@ -225,60 +234,30 @@
         the real public LendingClub dataset — this is the real output, committed in the
         repo under <code>results/</code>, not a placeholder.
       </p>
-      <figure>
-        <svg viewBox="0 0 640 320" role="img" aria-label="Holdout c-stat by run: baseline 0.662, advisor 0.682, and the ltm_full loop improving across three iterations from 0.667 to 0.682 to 0.696, all well above the 0.5 random-ranking reference line.">
-          <!-- gridlines + y labels -->
-          <g font-size="11">
-            <!-- y scale: 0.50 -> 0.72 mapped to y: 270 -> 30 -->
-            <line class="grid-line" x1="70" y1="270" x2="600" y2="270"></line>
-            <text x="60" y="274" text-anchor="end">0.50</text>
-            <line class="grid-line" x1="70" y1="210" x2="600" y2="210"></line>
-            <text x="60" y="214" text-anchor="end">0.58</text>
-            <line class="grid-line" x1="70" y1="150" x2="600" y2="150"></line>
-            <text x="60" y="154" text-anchor="end">0.64</text>
-            <line class="grid-line" x1="70" y1="90" x2="600" y2="90"></line>
-            <text x="60" y="94" text-anchor="end">0.70</text>
-          </g>
-          <!-- random reference line at 0.50 -->
-          <line class="dash" x1="70" y1="270" x2="548" y2="270"></line>
-          <text x="636" y="274" text-anchor="end" font-size="11" fill="currentColor" class="label-strong">0.5 — random</text>
-
-          <!-- trajectory line connecting only the ltm_full points (ep1-ep2-ep3) -->
-          <polyline class="accent-stroke" fill="none" stroke-width="2.5"
-            points="430,172.5 510,150 590,106.5"></polyline>
-
-          <!-- points -->
-          <!-- x positions: 110 baseline, 270 advisor, 430 ltm1, 510 ltm2, 590 ltm3 -->
-          <!-- y = 270 - (val-0.5)*1200 -->
-          <g>
-            <circle cx="110" cy="75.6" r="6" class="accent-fill"></circle>
-            <text x="110" y="55" text-anchor="middle" font-size="12" class="label-strong">0.662</text>
-            <text x="110" y="292" text-anchor="middle" font-size="11.5">Baseline</text>
-
-            <circle cx="270" cy="51.6" r="6" class="accent-fill"></circle>
-            <text x="270" y="31" text-anchor="middle" font-size="12" class="label-strong">0.682</text>
-            <text x="270" y="292" text-anchor="middle" font-size="11.5">Advisor</text>
-
-            <circle cx="430" cy="172.5" r="6" class="accent-fill"></circle>
-            <text x="430" y="196" text-anchor="middle" font-size="12" class="label-strong">0.667</text>
-            <text x="430" y="292" text-anchor="middle" font-size="11.5">LTM · ep 1</text>
-
-            <circle cx="510" cy="150" r="6" class="accent-fill"></circle>
-            <text x="510" y="130" text-anchor="middle" font-size="12" class="label-strong">0.682</text>
-            <text x="510" y="292" text-anchor="middle" font-size="11.5">LTM · ep 2</text>
-
-            <circle cx="590" cy="106.5" r="6" class="accent-fill"></circle>
-            <text x="590" y="86" text-anchor="middle" font-size="12" class="label-strong">0.696</text>
-            <text x="590" y="292" text-anchor="middle" font-size="11.5">LTM · ep 3</text>
-          </g>
-        </svg>
-        <figcaption>
-          Holdout Harrell's C by run. The three connected points are one <code>ltm_full</code>
-          loop instance, each episode building on the last via post-mortem learnings — a
-          clean, monotonic improvement. Baseline and Advisor are separate, single-episode
-          runs shown for comparison, not part of that trajectory.
-        </figcaption>
-      </figure>
+      <div class="stat-grid">
+        <div class="stat-tile">
+          <div class="stat-label">baseline</div>
+          <div class="stat-value">0.662</div>
+          <div class="stat-sub">holdout Harrell's C · 1 episode</div>
+        </div>
+        <div class="stat-tile">
+          <div class="stat-label">advisor</div>
+          <div class="stat-value">0.682</div>
+          <div class="stat-sub">holdout Harrell's C · 1 episode</div>
+        </div>
+        <div class="stat-tile">
+          <div class="stat-label">ltm_full</div>
+          <div class="stat-value">0.667 → 0.682 → 0.696</div>
+          <div class="stat-sub">holdout Harrell's C per episode · 3 episodes, 1 loop instance</div>
+        </div>
+      </div>
+      <p style="margin-top:14px; font-size: 13.5px;">
+        Deliberately shown as plain numbers, not a trend chart: each is a single real
+        run per config, not a statistically powered comparison, and presenting n=1
+        results as a chart implies more than that's actually evidence for — exactly the
+        kind of looseness the harness-evaluation paper this work feeds into argues
+        against. 0.5 would be random ranking; these are genuine, working models.
+      </p>
       <p style="margin-top:18px; font-size: 13.5px;">
         One honest gap from this run: the mid-episode critic fires on a turn count, and
         this task turned out simple enough that the agent solved it in very few main-agent
@@ -301,7 +280,7 @@
         feedback loop connecting them across episodes:
       </p>
       <figure>
-        <svg viewBox="0 0 1040 740" role="img" aria-label="Five agents: a Starting Critic fires once before the Primary Agent's first turn with a non-binding suggested approach; the Primary Agent delegates to a sandboxed Subagent and exchanges advisory guidance with a Periodic Critic every ten turns; after the episode ends, a Post-Mortem agent reviews the trace and produces learnings that carry forward to the next episode's Starting Critic, closing the long-term-memory loop.">
+        <svg viewBox="0 -90 1040 830" role="img" aria-label="Five agents: a Starting Critic fires once before the Primary Agent's first turn with a non-binding suggested approach; the Primary Agent delegates to a sandboxed Subagent and exchanges advisory guidance with a Periodic Critic every ten turns; after the episode ends, a Post-Mortem agent reviews the trace and produces learnings that carry forward to the next episode's Starting Critic, closing the long-term-memory loop.">
           <defs>
             <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
               <path d="M0,0 L10,5 L0,10 z" fill="currentColor"></path>
@@ -399,17 +378,23 @@
           <!-- arrows -->
           <!-- Starting Critic -> Primary -->
           <path class="dash" d="M160,170 C160,280 260,320 330,350" marker-end="url(#arrow)"></path>
-          <!-- Primary <-> Periodic Critic: both terminate AT box edges, not inside the content -->
-          <path class="dash" d="M650,260 C700,230 750,215 780,200" marker-end="url(#arrow)"></path>
-          <path class="dash" d="M900,200 C860,230 650,245 600,260" marker-end="url(#arrow)"></path>
+          <!-- Primary <-> Periodic Critic: ONE bidirectional connector (auto-start-reverse
+               orients both ends correctly) instead of two separate curves, which used to
+               cross each other in the gap between the boxes. -->
+          <path class="dash" d="M650,258 C705,222 745,195 775,178" marker-start="url(#arrow)" marker-end="url(#arrow)"></path>
           <!-- Primary -> Subagent -->
           <path class="dash" d="M500,570 C500,600 500,615 500,630" marker-end="url(#arrow)"></path>
           <!-- Primary -> Post-Mortem -->
           <path class="dash" d="M710,300 C745,300 755,300 760,300" marker-end="url(#arrow)"></path>
-          <!-- Post-Mortem -> Starting Critic (loop closes) -->
-          <path class="dash accent-stroke" stroke-width="2" d="M900,260 C900,-20 300,-40 160,30" marker-end="url(#arrow)"></path>
-          <rect x="400" y="3" width="240" height="18" rx="4" fill="var(--surface-0)"></rect>
-          <text x="520" y="15" text-anchor="middle" font-size="11" fill="currentColor" class="label-strong">learnings carry forward to the next episode</text>
+          <!-- Post-Mortem -> Starting Critic (loop closes). Routed in two segments that
+               both swing wide (x>1010, then y<=-60) before re-entering any other box's
+               footprint, so it passes OVER the Periodic Critic and Starting Critic boxes
+               instead of through them. -->
+          <path class="dash accent-stroke" stroke-width="2"
+            d="M1010,270 C1080,270 1080,-60 900,-60 C600,-60 300,-60 160,30"
+            marker-end="url(#arrow)"></path>
+          <rect x="400" y="-67" width="240" height="18" rx="4" fill="var(--surface-0)"></rect>
+          <text x="520" y="-55" text-anchor="middle" font-size="11" fill="currentColor" class="label-strong">learnings carry forward to the next episode</text>
         </svg>
         <figcaption>
           The long-term-memory loop: a Post-Mortem agent's distilled learnings feed the

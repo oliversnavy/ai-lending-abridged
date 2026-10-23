@@ -116,4 +116,6 @@ data.
 
 ## License
 
-MIT — see `LICENSE`.
+No license is granted. This code is shared publicly so it can be read and evaluated —
+for a job application, for example — but all rights are reserved; reuse, modification,
+or redistribution requires permission.
