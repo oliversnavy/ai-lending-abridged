@@ -1,5 +1,7 @@
 # ai-lending-abridged
 
+**[Read the landing page →](https://oliversnavy.github.io/ai-lending-abridged/)**
+
 A deep-agent harness built on **LangGraph + deepagents**: multi-agent orchestration,
 short- and long-term memory, a three-critic feedback lifecycle, and censoring-aware
 evaluation methodology for a non-deterministic system — demonstrated on a public
