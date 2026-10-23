@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deep-Agent Harness — Oliver</title>
+<meta name="description" content="A LangGraph + deepagents harness demonstrating multi-agent orchestration, short/long-term memory, a three-critic lifecycle, and censoring-aware eval methodology on a public credit-risk-ranking task.">
+<style>
+  :root {
+    color-scheme: light;
+    --surface-0:      #ffffff;
+    --surface-1:      #fcfcfb;
+    --surface-2:      #f3f2ee;
+    --border:         #e3e1da;
+    --text-primary:   #0b0b0b;
+    --text-secondary: #52514e;
+    --text-muted:     #807f78;
+    --accent:         #2a78d6;
+    --accent-ink:     #184f95;
+    --accent-soft:    #e8f0fb;
+    --good:           #0ca30c;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --surface-0:      #141413;
+      --surface-1:      #1a1a19;
+      --surface-2:      #232220;
+      --border:         #37352f;
+      --text-primary:   #ffffff;
+      --text-secondary: #c3c2b7;
+      --text-muted:     #8c8a80;
+      --accent:         #3987e5;
+      --accent-ink:     #bcd7f8;
+      --accent-soft:    #1c2c40;
+      --good:           #35c235;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --surface-0:      #141413;
+    --surface-1:      #1a1a19;
+    --surface-2:      #232220;
+    --border:         #37352f;
+    --text-primary:   #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted:     #8c8a80;
+    --accent:         #3987e5;
+    --accent-ink:     #bcd7f8;
+    --accent-soft:    #1c2c40;
+    --good:           #35c235;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--surface-0);
+    color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    line-height: 1.55;
+  }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 0 20px; }
+  section { padding: 56px 0; }
+  section + section { border-top: 1px solid var(--border); }
+
+  h1 { font-size: clamp(28px, 5vw, 42px); line-height: 1.15; margin: 0 0 14px; letter-spacing: -0.01em; }
+  h2 { font-size: clamp(20px, 3vw, 26px); margin: 0 0 22px; letter-spacing: -0.01em; }
+  p  { color: var(--text-secondary); margin: 0 0 14px; }
+  a  { color: var(--accent-ink); text-decoration: underline; text-underline-offset: 2px; }
+  a.cta-link { text-decoration: none; }
+
+  .eyebrow {
+    font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--accent-ink); margin-bottom: 10px;
+  }
+
+  .hero { padding-top: 72px; padding-bottom: 40px; }
+  .hero p.lede { font-size: 17px; max-width: 640px; }
+  .hero-ctas { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 26px; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 11px 18px; border-radius: 8px; font-size: 15px; font-weight: 600;
+    border: 1px solid var(--border);
+  }
+  .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .btn-secondary { background: var(--surface-1); color: var(--text-primary); }
+
+  .callout {
+    background: var(--surface-1); border: 1px solid var(--border); border-left: 3px solid var(--accent);
+    border-radius: 8px; padding: 18px 20px; font-size: 14.5px; color: var(--text-secondary);
+  }
+  .callout strong { color: var(--text-primary); }
+
+  .cap-grid { display: grid; gap: 14px; }
+  .cap-row {
+    display: grid; grid-template-columns: 28px 1fr; gap: 14px;
+    padding: 16px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-1);
+  }
+  .cap-row .num {
+    width: 28px; height: 28px; border-radius: 50%; background: var(--accent-soft); color: var(--accent-ink);
+    display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700;
+  }
+  .cap-row h3 { margin: 0 0 4px; font-size: 15.5px; }
+  .cap-row p { margin: 0; font-size: 14px; }
+  .cap-row code { background: var(--surface-2); padding: 1px 5px; border-radius: 4px; font-size: 12.5px; }
+
+  figure { margin: 0; }
+  figcaption { font-size: 13.5px; color: var(--text-muted); margin-top: 10px; text-align: center; }
+  svg text { fill: var(--text-secondary); }
+  svg .label-strong { fill: var(--text-primary); font-weight: 600; }
+  svg .grid-line { stroke: var(--border); stroke-width: 1; }
+  svg .box-stroke { stroke: var(--text-muted); fill: none; }
+  svg .box-fill { fill: var(--surface-1); }
+  svg .accent-stroke { stroke: var(--accent); }
+  svg .accent-fill { fill: var(--accent); }
+  svg .dash { stroke-dasharray: 5 4; fill: none; stroke: var(--text-muted); }
+  svg .pill { fill: var(--surface-2); stroke: var(--border); }
+  svg .pill-text { font-size: 10.5px; }
+
+  .stack-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+  .chip {
+    font-size: 13px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--border);
+    background: var(--surface-1); color: var(--text-secondary);
+  }
+
+  footer { padding: 40px 0 60px; }
+  footer .wrap { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+  footer p { margin: 0; font-size: 13.5px; }
+
+  @media (max-width: 640px) {
+    section { padding: 40px 0; }
+    .cap-row { grid-template-columns: 24px 1fr; }
+  }
+</style>
+</head>
+<body>
+
+  <section class="hero">
+    <div class="wrap">
+      <div class="eyebrow">Oliver — Agent Harness Engineering</div>
+      <h1>Multi-agent harness engineering, built the LangGraph way.</h1>
+      <p class="lede">
+        LLMs, tools, skills, and middleware composed into a deep-agent system with
+        short- and long-term memory, a three-critic feedback lifecycle, and
+        censoring-aware eval methodology for a non-deterministic system —
+        demonstrated end to end on a real credit-risk-ranking task, not a toy.
+      </p>
+      <div class="hero-ctas">
+        <a class="btn btn-primary cta-link" href="https://github.com/oliversnavy/ai-lending-abridged">View the repo →</a>
+        <a class="btn btn-secondary cta-link" href="https://github.com/oliversnavy/ai-lending-abridged/blob/master/ARCHITECTURE.md">Read the architecture doc</a>
+        <a class="btn btn-secondary cta-link" href="https://github.com/oliversnavy">GitHub profile</a>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="callout">
+        <strong>Honest disclosure, up front:</strong> this repo is a deliberate fork-and-strip
+        of a larger, private, multi-month research project I'm running on long-term memory
+        in deep agents (targeting an academic paper). The harness engineering shown here —
+        orchestration, sandboxing, memory architecture, eval discipline — is real and
+        complete. The research project's own novel contribution — a sequential,
+        capital-constrained pricing mechanic, and the empirical findings about what helps
+        agents use memory well — is intentionally <em>not</em> included; it's reserved for
+        publication. What's here is the generic infrastructure underneath it, re-platformed
+        onto a simpler, standard, publicly-available task (public LendingClub data, never
+        any employer's or proprietary data) so it can be shared without exposing
+        unpublished research.
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="eyebrow">What this demonstrates</div>
+      <h2>Mapped directly to real agent-engineering work</h2>
+      <div class="cap-grid">
+        <div class="cap-row">
+          <div class="num">1</div>
+          <div>
+            <h3>Multi-agent patterns &amp; state management</h3>
+            <p>A main agent delegates to a sandboxed <code>general-purpose</code> subagent (Docker, read-only project mount, <code>--network none</code>). Short-term memory is LangGraph message state managed by context-editing + overflow-recovery middleware; long-term memory is a distilled, capped, cross-episode learnings loop — not a vector store.</p>
+          </div>
+        </div>
+        <div class="cap-row">
+          <div class="num">2</div>
+          <div>
+            <h3>Agent architecture &amp; orchestration</h3>
+            <p>A deliberate middleware stack and ordering (guardrails → recovery → time/token awareness → context editing → overflow recovery), composed differently per run config from the same <code>build_graph()</code> function.</p>
+          </div>
+        </div>
+        <div class="cap-row">
+          <div class="num">3</div>
+          <div>
+            <h3>Eval methodology for non-deterministic systems</h3>
+            <p>Independent, subprocess-isolated re-scoring (the agent's self-report is never authoritative); Harrell's C instead of AUC to handle censored outcomes correctly; first-class degenerate-model detection, not just a low score.</p>
+          </div>
+        </div>
+        <div class="cap-row">
+          <div class="num">4</div>
+          <div>
+            <h3>Advisory-to-embedded delivery range</h3>
+            <p>The <code>advisor</code> config escalates to a senior-reviewer LLM at defined checkpoints — the advisory point. The <code>ltm_full</code> config is a fully embedded, memory-carrying loop — the embedded point. Same harness, same code, different composition.</p>
+          </div>
+        </div>
+        <div class="cap-row">
+          <div class="num">5</div>
+          <div>
+            <h3>Trace-mining &amp; continuous improvement</h3>
+            <p>A three-critic lifecycle mines each episode's trace to improve the next one — and the repo documents a tried-and-rejected alternative (static every-turn reinjection) that caused episodes to collapse into copying, kept in the codebase as a defended tradeoff, not hidden.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="eyebrow">Real results, not simulated</div>
+      <h2>Run for real against the live API and the real data</h2>
+      <p>
+        All three run configs below were executed against the actual Anthropic API and
+        the real public LendingClub dataset — this is the real output, committed in the
+        repo under <code>results/</code>, not a placeholder.
+      </p>
+      <figure>
+        <svg viewBox="0 0 640 320" role="img" aria-label="Holdout c-stat by run: baseline 0.662, advisor 0.682, and the ltm_full loop improving across three iterations from 0.667 to 0.682 to 0.696, all well above the 0.5 random-ranking reference line.">
+          <!-- gridlines + y labels -->
+          <g font-size="11">
+            <!-- y scale: 0.50 -> 0.72 mapped to y: 270 -> 30 -->
+            <line class="grid-line" x1="70" y1="270" x2="600" y2="270"></line>
+            <text x="60" y="274" text-anchor="end">0.50</text>
+            <line class="grid-line" x1="70" y1="210" x2="600" y2="210"></line>
+            <text x="60" y="214" text-anchor="end">0.58</text>
+            <line class="grid-line" x1="70" y1="150" x2="600" y2="150"></line>
+            <text x="60" y="154" text-anchor="end">0.64</text>
+            <line class="grid-line" x1="70" y1="90" x2="600" y2="90"></line>
+            <text x="60" y="94" text-anchor="end">0.70</text>
+          </g>
+          <!-- random reference line at 0.50 -->
+          <line class="dash" x1="70" y1="270" x2="548" y2="270"></line>
+          <text x="636" y="274" text-anchor="end" font-size="11" fill="currentColor" class="label-strong">0.5 — random</text>
+
+          <!-- trajectory line connecting only the ltm_full points (ep1-ep2-ep3) -->
+          <polyline class="accent-stroke" fill="none" stroke-width="2.5"
+            points="430,172.5 510,150 590,106.5"></polyline>
+
+          <!-- points -->
+          <!-- x positions: 110 baseline, 270 advisor, 430 ltm1, 510 ltm2, 590 ltm3 -->
+          <!-- y = 270 - (val-0.5)*1200 -->
+          <g>
+            <circle cx="110" cy="75.6" r="6" class="accent-fill"></circle>
+            <text x="110" y="55" text-anchor="middle" font-size="12" class="label-strong">0.662</text>
+            <text x="110" y="292" text-anchor="middle" font-size="11.5">Baseline</text>
+
+            <circle cx="270" cy="51.6" r="6" class="accent-fill"></circle>
+            <text x="270" y="31" text-anchor="middle" font-size="12" class="label-strong">0.682</text>
+            <text x="270" y="292" text-anchor="middle" font-size="11.5">Advisor</text>
+
+            <circle cx="430" cy="172.5" r="6" class="accent-fill"></circle>
+            <text x="430" y="196" text-anchor="middle" font-size="12" class="label-strong">0.667</text>
+            <text x="430" y="292" text-anchor="middle" font-size="11.5">LTM · ep 1</text>
+
+            <circle cx="510" cy="150" r="6" class="accent-fill"></circle>
+            <text x="510" y="130" text-anchor="middle" font-size="12" class="label-strong">0.682</text>
+            <text x="510" y="292" text-anchor="middle" font-size="11.5">LTM · ep 2</text>
+
+            <circle cx="590" cy="106.5" r="6" class="accent-fill"></circle>
+            <text x="590" y="86" text-anchor="middle" font-size="12" class="label-strong">0.696</text>
+            <text x="590" y="292" text-anchor="middle" font-size="11.5">LTM · ep 3</text>
+          </g>
+        </svg>
+        <figcaption>
+          Holdout Harrell's C by run. The three connected points are one <code>ltm_full</code>
+          loop instance, each episode building on the last via post-mortem learnings — a
+          clean, monotonic improvement. Baseline and Advisor are separate, single-episode
+          runs shown for comparison, not part of that trajectory.
+        </figcaption>
+      </figure>
+      <p style="margin-top:18px; font-size: 13.5px;">
+        One honest gap from this run: the mid-episode critic fires on a turn count, and
+        this task turned out simple enough that the agent solved it in very few main-agent
+        turns (most real work happened inside one subagent delegation) — so it never
+        actually fired here, even though it's confirmed correctly wired. See
+        <a href="https://github.com/oliversnavy/ai-lending-abridged/blob/master/ARCHITECTURE.md#verification">ARCHITECTURE.md</a>
+        for the full verification trail.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="eyebrow">Architecture</div>
+      <h2>Agents as LLM + tools + middleware</h2>
+      <p>
+        The LangChain way of thinking about an agent — a model wrapped by middleware
+        hooks, holding tools, composed with other agents — shows up directly in how this
+        harness is built. Five agents, each a composition of a model and middleware, one
+        feedback loop connecting them across episodes:
+      </p>
+      <figure>
+        <svg viewBox="0 0 1040 740" role="img" aria-label="Five agents: a Starting Critic fires once before the Primary Agent's first turn with a non-binding suggested approach; the Primary Agent delegates to a sandboxed Subagent and exchanges advisory guidance with a Periodic Critic every ten turns; after the episode ends, a Post-Mortem agent reviews the trace and produces learnings that carry forward to the next episode's Starting Critic, closing the long-term-memory loop.">
+          <defs>
+            <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" fill="currentColor"></path>
+            </marker>
+          </defs>
+
+          <!-- Starting Critic: top-left -->
+          <g>
+            <rect x="30" y="30" width="260" height="140" rx="10" class="box-stroke box-fill"></rect>
+            <text x="50" y="58" class="label-strong" font-size="14">Starting Critic</text>
+            <text x="50" y="76" font-size="11">PreLoopAnchorMiddleware</text>
+            <text x="50" y="92" font-size="11" fill="currentColor" class="label-strong">fires once, before turn 1</text>
+            <rect x="50" y="108" width="150" height="20" rx="10" class="pill"></rect>
+            <text x="60" y="122" class="pill-text">submit_anchor()</text>
+            <text x="50" y="150" font-size="10.5" fill="currentColor">→ one non-binding suggested</text>
+            <text x="50" y="163" font-size="10.5" fill="currentColor">starting point, not a mandate</text>
+          </g>
+
+          <!-- Primary Agent: center, largest -->
+          <g>
+            <rect x="330" y="260" width="380" height="310" rx="10" class="box-stroke box-fill" stroke-width="1.5"></rect>
+            <text x="350" y="290" class="label-strong" font-size="15">Primary Agent</text>
+            <rect x="350" y="304" width="200" height="22" rx="11" class="pill"></rect>
+            <text x="360" y="319" class="pill-text">Claude Sonnet 5 · low effort</text>
+
+            <text x="350" y="348" font-size="11" class="label-strong">middleware</text>
+            <g font-size="10.5">
+              <rect x="350" y="356" width="150" height="20" rx="10" class="pill"></rect>
+              <text x="360" y="370" class="pill-text">HarnessGuardrails</text>
+              <rect x="508" y="356" width="150" height="20" rx="10" class="pill"></rect>
+              <text x="518" y="370" class="pill-text">Truncation/Overflow</text>
+              <rect x="350" y="382" width="150" height="20" rx="10" class="pill"></rect>
+              <text x="360" y="396" class="pill-text">Time/Token Awareness</text>
+              <rect x="508" y="382" width="150" height="20" rx="10" class="pill"></rect>
+              <text x="518" y="396" class="pill-text">ResultsGuard</text>
+            </g>
+
+            <text x="350" y="430" font-size="11" class="label-strong">tools</text>
+            <g font-size="10.5">
+              <rect x="350" y="438" width="330" height="20" rx="10" class="pill"></rect>
+              <text x="360" y="452" class="pill-text">write_file · read_file · glob · grep · execute</text>
+              <rect x="350" y="464" width="150" height="20" rx="10" class="pill"></rect>
+              <text x="360" y="478" class="pill-text">task (delegate)</text>
+            </g>
+
+            <text x="350" y="512" font-size="10.5" fill="currentColor">deliverable: risk_model.pkl,</text>
+            <text x="350" y="526" font-size="10.5" fill="currentColor">independently re-scored after</text>
+            <text x="350" y="540" font-size="10.5" fill="currentColor">the episode ends (Harrell's C)</text>
+          </g>
+
+          <!-- Periodic Critic: top-right -->
+          <g>
+            <rect x="760" y="30" width="250" height="170" rx="10" class="box-stroke box-fill"></rect>
+            <text x="780" y="58" class="label-strong" font-size="14">Periodic Critic</text>
+            <text x="780" y="76" font-size="11">PeriodicCriticMiddleware</text>
+            <text x="780" y="92" font-size="11" fill="currentColor" class="label-strong">every 10 turns, advisory</text>
+            <rect x="780" y="106" width="190" height="22" rx="11" class="pill"></rect>
+            <text x="790" y="121" class="pill-text">Claude Sonnet 5 · medium effort</text>
+            <rect x="780" y="136" width="150" height="20" rx="10" class="pill"></rect>
+            <text x="790" y="150" class="pill-text">submit_guidance()</text>
+            <text x="780" y="180" font-size="10.5" fill="currentColor">one observation + one</text>
+            <text x="780" y="193" font-size="10.5" fill="currentColor">suggestion, never an order</text>
+          </g>
+
+          <!-- Post-Mortem: right -->
+          <g>
+            <rect x="760" y="260" width="250" height="230" rx="10" class="box-stroke box-fill"></rect>
+            <text x="780" y="288" class="label-strong" font-size="14">Post-Mortem</text>
+            <text x="780" y="306" font-size="11">fresh context, after episode ends</text>
+            <g font-size="10.5">
+              <rect x="780" y="318" width="210" height="20" rx="10" class="pill"></rect>
+              <text x="790" y="332" class="pill-text">list_delegations / read_events</text>
+              <rect x="780" y="344" width="210" height="20" rx="10" class="pill"></rect>
+              <text x="790" y="358" class="pill-text">search_for_errors</text>
+              <rect x="780" y="370" width="210" height="20" rx="10" class="pill"></rect>
+              <text x="790" y="384" class="pill-text">submit_learnings()</text>
+            </g>
+            <text x="780" y="412" font-size="10.5" fill="currentColor">up to 3 positive + 3 negative</text>
+            <text x="780" y="425" font-size="10.5" fill="currentColor">learnings, each with a mechanical,</text>
+            <text x="780" y="438" font-size="10.5" fill="currentColor">harness-assigned id</text>
+            <text x="780" y="462" font-size="10.5" fill="currentColor">duplicate-artifact detection via</text>
+            <text x="780" y="475" font-size="10.5" fill="currentColor">pure hash comparison (ground</text>
+            <text x="780" y="488" font-size="10.5" fill="currentColor">truth, independent of the model)</text>
+          </g>
+
+          <!-- Subagent: bottom -->
+          <g>
+            <rect x="330" y="630" width="380" height="95" rx="10" class="box-stroke box-fill"></rect>
+            <text x="350" y="656" class="label-strong" font-size="14">Subagent (sandboxed)</text>
+            <text x="350" y="674" font-size="11">Docker, read-only project mount, --network none</text>
+            <rect x="350" y="684" width="330" height="20" rx="10" class="pill"></rect>
+            <text x="360" y="698" class="pill-text">general-purpose: data exploration, training, debugging</text>
+          </g>
+
+          <!-- arrows -->
+          <!-- Starting Critic -> Primary -->
+          <path class="dash" d="M160,170 C160,280 260,320 330,350" marker-end="url(#arrow)"></path>
+          <!-- Primary <-> Periodic Critic: both terminate AT box edges, not inside the content -->
+          <path class="dash" d="M650,260 C700,230 750,215 780,200" marker-end="url(#arrow)"></path>
+          <path class="dash" d="M900,200 C860,230 650,245 600,260" marker-end="url(#arrow)"></path>
+          <!-- Primary -> Subagent -->
+          <path class="dash" d="M500,570 C500,600 500,615 500,630" marker-end="url(#arrow)"></path>
+          <!-- Primary -> Post-Mortem -->
+          <path class="dash" d="M710,300 C745,300 755,300 760,300" marker-end="url(#arrow)"></path>
+          <!-- Post-Mortem -> Starting Critic (loop closes) -->
+          <path class="dash accent-stroke" stroke-width="2" d="M900,260 C900,-20 300,-40 160,30" marker-end="url(#arrow)"></path>
+          <rect x="400" y="3" width="240" height="18" rx="4" fill="var(--surface-0)"></rect>
+          <text x="520" y="15" text-anchor="middle" font-size="11" fill="currentColor" class="label-strong">learnings carry forward to the next episode</text>
+        </svg>
+        <figcaption>
+          The long-term-memory loop: a Post-Mortem agent's distilled learnings feed the
+          next episode's Starting Critic, which surfaces the single strongest prior
+          approach as a non-binding suggestion — closing the loop without reintroducing
+          a ratchet/selection-bias confound (never an instruction to fall back to it).
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="eyebrow">Stack</div>
+      <h2>Built on</h2>
+      <div class="stack-chips">
+        <span class="chip">LangGraph</span>
+        <span class="chip">deepagents</span>
+        <span class="chip">Claude Sonnet 5 (Anthropic)</span>
+        <span class="chip">GLM-5.3 via Baseten (open-weight backend)</span>
+        <span class="chip">Docker-sandboxed subagent execution</span>
+        <span class="chip">lifelines (Harrell's C)</span>
+        <span class="chip">XGBoost / LightGBM / CatBoost / PyCox</span>
+        <span class="chip">LangSmith (tracing)</span>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <p>Oliver</p>
+      <p><a href="https://github.com/oliversnavy/ai-lending-abridged">github.com/oliversnavy/ai-lending-abridged</a> · <a href="https://github.com/oliversnavy">github.com/oliversnavy</a></p>
+    </div>
+  </footer>
+
+</body>
+</html>
